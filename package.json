@@ -1,15 +1,14 @@
 {
-  "name": "backender-client",
+  "name": "backender-core",
   "version": "1.0.0",
-  "description": "Frontend client for Backender API",
+  "description": "Core Backender types & code",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bradhilton/backender-client.git"
+    "url": "git+https://github.com/bradhilton/backender-core.git"
   },
   "keywords": [
     "backender"
@@ -17,9 +16,9 @@
   "author": "Backender",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bradhilton/backender-client/issues"
+    "url": "https://github.com/bradhilton/backender-core/issues"
   },
-  "homepage": "https://github.com/bradhilton/backender-client#readme",
+  "homepage": "https://github.com/bradhilton/backender-core#readme",
   "devDependencies": {
     "typescript": "4.0.3"
   },

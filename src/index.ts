@@ -1,75 +1,44 @@
-import api, { AnyModel } from './api'
-
-type ModelClient<Model> = {
-  all(): Promise<Model[]>
-  create(partialModel: Partial<Omit<Model, 'id'>>): Promise<Model>
-  update(partialModel: Partial<Model> & { id: string }): Promise<Model>
-  delete(id: string): Promise<void>
-}
-
-type Client<Models> = {
-  [modelPluralName in keyof Models]: ModelClient<Models[modelPluralName]>
-}
-
-type AnyModels = {
-  [modelPluralName: string]: {
-    [fieldName: string]: any
-  }
-}
-
-export type Schema<Models extends AnyModels> = {
+export type AnyModel = {
   id: string
-  models: {
-    [modelPluralName in keyof Models]: {
+  fields: {
+    [fieldName: string]: {
       id: string
-      fields: {
-        [fieldName in keyof Models[modelPluralName]]: {
-          id: string
-        }
-      }
     }
   }
 }
 
-const Client = <Models extends AnyModels>(options: {
-  schema: Schema<Models>
+export type BaseRequest = {
+  backendId: string
   clientId: string
-}): Client<Models> => {
-  const client = {} as Client<Models>
-  Object.entries(options.schema.models).forEach(
-    ([modelPluralName, model]: [keyof Models, AnyModel]) => {
-      const baseRequest = {
-        backendId: options.schema.id,
-        clientId: options.clientId,
-        model,
-      }
-      client[modelPluralName] = {
-        all() {
-          return (api.all({
-            ...baseRequest,
-            type: 'query',
-          }) as unknown) as Promise<Models[keyof Models][]>
-        },
-        create(data: {}) {
-          return (api.create({
-            ...baseRequest,
-            type: 'create',
-            data,
-          }) as unknown) as Promise<Models[keyof Models]>
-        },
-        update(data: { id: string }) {
-          return (api.update({
-            ...baseRequest,
-            type: 'update',
-            data,
-          }) as unknown) as Promise<Models[keyof Models]>
-        },
-        delete(id: string) {
-          return api.delete({ ...baseRequest, type: 'delete', id })
-        },
-      }
-    }
-  )
-  return client
 }
-export default Client
+
+export type Query<Model extends AnyModel> = BaseRequest & {
+  type: 'query'
+  model: Model
+}
+
+export type Create<Model extends AnyModel> = BaseRequest & {
+  type: 'create'
+  model: Model
+  data: Partial<Omit<{ [fieldName in keyof Model['fields']]: unknown }, 'id'>>
+}
+
+export type Update<Model extends AnyModel> = BaseRequest & {
+  type: 'update'
+  model: Model
+  data: Partial<{ [fieldName in keyof Model['fields']]: unknown }> & {
+    id: string
+  }
+}
+
+export type Delete<Model extends AnyModel> = BaseRequest & {
+  type: 'delete'
+  model: Model
+  id: string
+}
+
+export type Request<Model extends AnyModel> =
+  | Query<Model>
+  | Create<Model>
+  | Update<Model>
+  | Delete<Model>
